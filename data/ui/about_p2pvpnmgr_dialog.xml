@@ -1,0 +1,9 @@
+<glade-catalog name="about_p2pvpnmgr_dialog" domain="glade-3" 
+               depends="gtk+" version="1.0">
+  <glade-widget-classes>
+    <glade-widget-class title="About P2pvpnmgr Dialog" name="AboutP2pvpnmgrDialog" 
+                        generic-name="AboutP2pvpnmgrDialog" parent="GtkAboutDialog"
+                        icon-name="widget-gtk-about-dialog"/>
+  </glade-widget-classes>
+
+</glade-catalog>

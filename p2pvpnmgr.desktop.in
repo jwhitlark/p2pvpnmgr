@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=P2pvpnmgr
+Comment=P2pvpnmgr application
+Categories=GNOME;Utility;
+Exec=p2pvpnmgr
+Icon=p2pvpnmgr
+Terminal=false
+Type=Application

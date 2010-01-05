@@ -1,0 +1,3 @@
+project = p2pvpnmgr
+template = ubuntu-project
+format = 0.2.5
