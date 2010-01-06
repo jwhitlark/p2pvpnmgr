@@ -22,7 +22,7 @@ else:
     fullPath = os.getcwd()
 sys.path.insert(0, os.path.dirname(fullPath))
 
-from p2pvpnmgr import AboutP2pvpnmgrDialog, PreferencesP2pvpnmgrDialog
+from p2pvpnmgr import AboutP2pvpnmgrDialog, PreferencesP2pvpnmgrDialog, NetworkdetailDialog
 from p2pvpnmgr.p2pvpnmgrconfig import getdatapath
 
 class P2pvpnmgrWindow(gtk.Window):
@@ -81,6 +81,12 @@ class P2pvpnmgrWindow(gtk.Window):
         #clean up code for saving application state should be added here
 
         gtk.main_quit()
+
+    def new_record(self, widget, data=None):
+        print "new record called."
+        dialog = NetworkdetailDialog.NewNetworkdetailDialog(self.database)
+        dialog.show()
+
 
     def save_file(self, widget, data=None):
         record_type = "http://unum.whitlark.org/todo/p2pvpnDoc"
