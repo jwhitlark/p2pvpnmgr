@@ -10,6 +10,7 @@ import gtk
 
 from desktopcouch.records.server import CouchDatabase
 from desktopcouch.records.record import Record
+from desktopcouch.records.couchgrid import CouchGrid
 
 # Check if we are working in the source tree or from the installed
 # package and mangle the python path accordingly
@@ -25,6 +26,8 @@ sys.path.insert(0, os.path.dirname(fullPath))
 from p2pvpnmgr import AboutP2pvpnmgrDialog, PreferencesP2pvpnmgrDialog, NetworkdetailDialog
 from p2pvpnmgr.p2pvpnmgrconfig import getdatapath
 
+record_type = "http://unum.whitlark.org/todo/p2pvpnDoc"
+
 class P2pvpnmgrWindow(gtk.Window):
     __gtype_name__ = "P2pvpnmgrWindow"
 
@@ -38,7 +41,9 @@ class P2pvpnmgrWindow(gtk.Window):
         P2pvpnmgrWindow object.
 
         """
-        self.database = CouchDatabase("p2pvpnmgr", create=True)
+        self.database_name = "p2pvpnmgr"
+        self.database = CouchDatabase(self.database_name, create=True)
+
 
 
     def finish_initializing(self, builder):
@@ -51,11 +56,43 @@ class P2pvpnmgrWindow(gtk.Window):
         self.builder = builder
         self.builder.connect_signals(self)
 
+
         #uncomment the following code to read in preferences at start up
         #dlg = PreferencesP2pvpnmgrDialog.NewPreferencesP2pvpnmgrDialog()
         #self.preferences = dlg.get_preferences()
 
         #code for other initialization actions should be added here
+        keys = ["net_name", "ifc_name", "autostart", "allow_broadcast", "db_replicate"]
+        self.couchgrid = CouchGrid(self.database_name, record_type=record_type,keys=keys)
+        self.update_couchgrid()
+        self.couchgrid.set_grid_lines(gtk.TREE_VIEW_GRID_LINES_BOTH)
+        self.couchgrid.connect("row-activated",  self.handle_couchgrid_selection)
+        self.couchgrid.show()
+        self.builder.get_object("vbox1").pack_start(self.couchgrid)
+
+    def handle_couchgrid_selection(self, widget, event, data=None):
+        print "caught selection!"
+        print self.selected_record_id
+        dialog = NetworkdetailDialog.NewNetworkdetailDialog(self.database, self.selected_record_id)
+        dialog.run()
+        dialog.destroy()
+        self.update_couchgrid()
+
+
+    def update_couchgrid(self):
+        self.couchgrid.record_type = record_type
+        for i, nm in enumerate(["Network Name", "Interface Name", "Autostart", "Allow Broadcast Packets", "Replicate Couchdb databases"]):
+            self.couchgrid.get_column(i).set_title(nm)
+
+
+    @property
+    def selected_record_id(self):
+        ids = self.couchgrid.selected_record_ids
+        print "%s record selected" % ids
+        if len(ids) < 1:
+            return None
+        else:
+            return ids[0]
 
     def about(self, widget, data=None):
         """about - display the about box for p2pvpnmgr """
@@ -85,29 +122,13 @@ class P2pvpnmgrWindow(gtk.Window):
     def new_record(self, widget, data=None):
         print "new record called."
         dialog = NetworkdetailDialog.NewNetworkdetailDialog(self.database)
-        dialog.show()
+        dialog.run()
+        dialog.destroy()
+        self.update_couchgrid()
 
 
     def save_file(self, widget, data=None):
-        record_type = "http://unum.whitlark.org/todo/p2pvpnDoc"
-        net_name = self.builder.get_object("net_name").get_text()  #or set_text
-        ifc_name = self.builder.get_object("ifc_name").get_text()
-        supernode_address = self.builder.get_object("supernode_address").get_text()
-        log_location = self.builder.get_object("log_location").get_text()
-
-        print "Save called: %s, %s, %s, %s" % (net_name, ifc_name, supernode_address, log_location)
-
-        results = self.database.get_records(record_type = record_type,
-                                            create_view = True)
-
-        new_rec = Record({"record_type": record_type,
-                          "net_name": net_name,
-                          "ifc_name": ifc_name,
-                          "supernode_address": supernode_address,
-                          "log_location": log_location,
-                          "autostart": False,
-                          "allows_broadcast": False,})
-        self.database.put_record(new_rec)
+        pass
 
 def NewP2pvpnmgrWindow():
     """NewP2pvpnmgrWindow - returns a fully instantiated
