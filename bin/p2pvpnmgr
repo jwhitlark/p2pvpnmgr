@@ -83,13 +83,17 @@ class P2pvpnmgrWindow(gtk.Window):
         gtk.main_quit()
 
     def save_file(self, widget, data=None):
+        record_type = "http://unum.whitlark.org/todo/p2pvpnDoc"
         net_name = self.builder.get_object("net_name").get_text()  #or set_text
         ifc_name = self.builder.get_object("ifc_name").get_text()
         supernode_address = self.builder.get_object("supernode_address").get_text()
         log_location = self.builder.get_object("log_location").get_text()
 
         print "Save called: %s, %s, %s, %s" % (net_name, ifc_name, supernode_address, log_location)
-        record_type = "http://unum.whitlark.org/todo/p2pvpnDoc"
+
+        results = self.database.get_records(record_type = record_type,
+                                            create_view = True)
+
         new_rec = Record({"record_type": record_type,
                           "net_name": net_name,
                           "ifc_name": ifc_name,
